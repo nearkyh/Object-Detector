@@ -15,3 +15,7 @@ A Real-time object detection app using [Tensorflow Object Detection API](https:/
 
 Run App:
 - python3 object_detection_app.py
+
+
+Add export models:
+- <a href='object_detection/export_models/README.md'>export models</a><br>
