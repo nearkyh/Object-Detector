@@ -1,35 +1,26 @@
+'''
+Example usage:
+  python object_detector.py
+'''
+
 import tensorflow as tf
 import numpy as np
 import os
 import sys
 import time
-import six.moves.urllib as urllib
-import tarfile
-import zipfile
+import cv2
 
 from collections import defaultdict
 from io import StringIO
 from matplotlib import pyplot as plt
 from PIL import Image
 
-import cv2
-
-CAM_ID = 0
-cap = cv2.VideoCapture(CAM_ID)
-if cap.isOpened() == False:
-  print('Can\'t open the CAM(%d)' % (CAM_ID))
-  exit()
-
-# This is needed since the notebook is stored in the object_detection folder.
-sys.path.append("..")
-
-# Object detection imports
 # Here are the imports from the object detection module.
 from object_detection.utils import label_map_util
 from object_detection.utils import visualization_utils as vis_util
 
 # Model preparation
-MODEL_NAME = 'object_detection/export_models/ssd_mobilenet_v1_coco_11_06_2017'
+MODEL_NAME = 'object_detection/ssd_mobilenet_v1_coco_11_06_2017'
 
 # Path to frozen detection graph. This is the actual model that is used for the object detection.
 PATH_TO_CKPT = MODEL_NAME + '/frozen_inference_graph.pb'
@@ -49,7 +40,9 @@ with detection_graph.as_default():
     tf.import_graph_def(od_graph_def, name='')
 
 # Loading label map
-# Label maps map indices to category names, so that when our convolution network predicts `5`, we know that this corresponds to `airplane`.  Here we use internal utility functions, but anything that returns a dictionary mapping integers to appropriate string labels would be fine
+'''
+Label maps map indices to category names, so that when our convolution network predicts `5`, we know that this corresponds to `airplane`.  Here we use internal utility functions, but anything that returns a dictionary mapping integers to appropriate string labels would be fine
+'''
 label_map = label_map_util.load_labelmap(PATH_TO_LABELS)
 categories = label_map_util.convert_label_map_to_categories(label_map, max_num_classes=NUM_CLASSES, use_display_name=True)
 category_index = label_map_util.create_category_index(categories)
@@ -63,9 +56,26 @@ def load_image_into_numpy_array(image):
 # Detection
 with detection_graph.as_default():
   with tf.Session(graph=detection_graph) as sess:
+    # Opencv, Video capture
+    input_video = 1
+    cap = cv2.VideoCapture(input_video)
+    if cap.isOpened() == False:
+      print('Can\'t open the CAM(%d)' % (input_video))
+      exit()
+
     prevTime = 0  # Frame time variable
+
+    # Recording Video
+    fps = 30.0
+    width = int(cap.get(3))
+    height = int(cap.get(4))
+    fcc = cv2.VideoWriter_fourcc('D', 'I', 'V', 'X')
+    out = cv2.VideoWriter("save_video.avi", fcc, fps, (width, height))
+
     while True:
+      # Opencv, Video capture
       ret, image_np = cap.read()
+
       # Expand dimensions since the model expects images to have shape: [1, None, None, 3]
       image_np_expanded = np.expand_dims(image_np, axis=0)
       image_tensor = detection_graph.get_tensor_by_name('image_tensor:0')
@@ -88,9 +98,9 @@ with detection_graph.as_default():
           np.squeeze(scores),
           category_index,
           use_normalized_coordinates=True,
-          min_score_thresh=.5,
-          line_thickness=2)     
-     
+          min_score_thresh=.7,
+          line_thickness=4)
+    
       ################### Data analysis ###################
       print("")
       final_score = np.squeeze(scores)  # scores
@@ -110,8 +120,10 @@ with detection_graph.as_default():
         print("")
       else:
         print("Not Detect")
+        print("")
       for i in range(len(r_score)):  # socre array`s length
-        print("Object Num: {} || Category: {} || Score: {}%".format(i+1, r_category[i]['name'], 100*r_score[i]))
+        print("Object Num: {} , Category: {} , Score: {}%".format(i+1, r_category[i]['name'], 100*r_score[i]))
+        print("")
         final_boxes = np.squeeze(boxes)[i]  # ymin, xmin, ymax, xmax
         xmin = final_boxes[1]
         ymin = final_boxes[0]
@@ -121,9 +133,9 @@ with detection_graph.as_default():
         location_y = (ymax+ymin)/2
         # print("final_boxes [ymin xmin ymax xmax]")
         # print("final_boxes", final_boxes)
-        print("Location (x: {}, y: {})".format(location_x, location_y))
+        print("Location x: {}, y: {}".format(location_x, location_y))
         print("")
-      print(" +" * 30 ) 
+      print("+ " * 30 ) 
       #####################################################        
 
       # Frame
@@ -131,16 +143,17 @@ with detection_graph.as_default():
       sec = curTime - prevTime
       prevTime = curTime
       fps = 1/(sec)
-      model_name = "ssd_mobilenet_v1_coco_11_06_2017"
       str = "FPS : %0.1f" % fps
 
       # Display
-      cv2.putText(image_np, model_name, (5, 20), cv2.FONT_HERSHEY_PLAIN, 1, (255, 0, 0))
+      display_model_name = MODEL_NAME.split('/')[2]
+      cv2.putText(image_np, display_model_name, (5, 20), cv2.FONT_HERSHEY_PLAIN, 1, (255, 0, 0))
       cv2.putText(image_np, str, (5, 40), cv2.FONT_HERSHEY_PLAIN, 1, (255, 0, 0))
-        
-      cv2.imshow('object detection', cv2.resize(image_np, (1300,800)))
+      cv2.imshow('ship detection', cv2.resize(image_np, (1300,800)))
+
+      # Recording Video
+      out.write(image_np)
+
       if cv2.waitKey(1) & 0xFF == ord('q'):
         cv2.destroyAllWindows()
         break
-
-
