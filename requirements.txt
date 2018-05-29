@@ -1,0 +1,8 @@
+cython
+pillow
+lxml
+jupyter
+matplotlib
+tensorflow==1.8.0
+tensorflow-gpu==1.8.0
+opencv-python==3.4.1.15
