@@ -22,7 +22,7 @@ Apply Trained Model
 - `unzip object_detection/ssd_mobilenet_v1_coco_11_06_2017.zip -d object_detection/`
 
 Run
-```python
+```bash
 python object_detector.py \
     --input_cam=0
 ```
