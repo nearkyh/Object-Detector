@@ -1,6 +1,8 @@
 '''
 Example usage:
-  python object_detector.py
+    python object_detector.py \
+        --input_cam=0
+
 '''
 
 import tensorflow as tf
@@ -18,6 +20,10 @@ from PIL import Image
 # Here are the imports from the object detection module.
 from object_detection.utils import label_map_util
 from object_detection.utils import visualization_utils as vis_util
+
+flags = tf.app.flags
+flags.DEFINE_integer('input_cam', 0, 'Cam Number.')
+FLAGS = flags.FLAGS
 
 # Model preparation
 MODEL_NAME = 'object_detection/ssd_mobilenet_v1_coco_11_06_2017'
@@ -57,10 +63,10 @@ def load_image_into_numpy_array(image):
 with detection_graph.as_default():
   with tf.Session(graph=detection_graph) as sess:
     # Opencv, Video capture
-    input_video = 1
-    cap = cv2.VideoCapture(input_video)
+    input_cam = FLAGS.input_cam
+    cap = cv2.VideoCapture(input_cam)
     if cap.isOpened() == False:
-      print('Can\'t open the CAM(%d)' % (input_video))
+      print('Can\'t open the CAM(%d)' % (input_cam))
       exit()
 
     prevTime = 0  # Frame time variable
@@ -146,7 +152,7 @@ with detection_graph.as_default():
       str = "FPS : %0.1f" % fps
 
       # Display
-      display_model_name = MODEL_NAME.split('/')[2]
+      display_model_name = MODEL_NAME.split('/')[1]
       cv2.putText(image_np, display_model_name, (5, 20), cv2.FONT_HERSHEY_PLAIN, 1, (255, 0, 0))
       cv2.putText(image_np, str, (5, 40), cv2.FONT_HERSHEY_PLAIN, 1, (255, 0, 0))
       cv2.imshow('ship detection', cv2.resize(image_np, (1300,800)))
