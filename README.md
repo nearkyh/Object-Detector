@@ -11,20 +11,26 @@ A Real-time object detector using [Tensorflow Object Detection API](https://gith
 
 ## Getting Started
 Creating virtualenv
-1. `cd Object-Detector`
-2. `virtualenv env --python=python3.5`
-3. `source env/bin/activate`
+```bash
+$ cd Object-Detector
+$ virtualenv env --python=python3.5
+$ source env/bin/activate
+```
 
 Install Dependencies
-- `pip install -r requirements.txt`
+```bash
+$ pip install -r requirements.txt
+```
 
 Apply Trained Model
-- `unzip object_detection/ssd_mobilenet_v1_coco_11_06_2017.zip -d object_detection/`
+```bash
+$ unzip object_detection/ssd_mobilenet_v1_coco_11_06_2017.zip -d object_detection/
+```
 
 Run
 ```bash
-python object_detector.py \
-    --input_cam=0
+$ python object_detector.py \
+    --input_cam=your_cam_num
 ```
 
 <div align='center'>
