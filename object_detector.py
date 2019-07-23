@@ -12,11 +12,6 @@ import sys
 import time
 import cv2
 
-from collections import defaultdict
-from io import StringIO
-from matplotlib import pyplot as plt
-from PIL import Image
-
 # Here are the imports from the object detection module.
 from object_detection.utils import label_map_util
 from object_detection.utils import visualization_utils as vis_util
@@ -104,7 +99,7 @@ with detection_graph.as_default():
           np.squeeze(scores),
           category_index,
           use_normalized_coordinates=True,
-          min_score_thresh=.7,
+          min_score_thresh=.5,
           line_thickness=4)
     
       ################### Data analysis ###################
@@ -155,7 +150,7 @@ with detection_graph.as_default():
       display_model_name = MODEL_NAME.split('/')[1]
       cv2.putText(image_np, display_model_name, (5, 20), cv2.FONT_HERSHEY_PLAIN, 1, (255, 0, 0))
       cv2.putText(image_np, str, (5, 40), cv2.FONT_HERSHEY_PLAIN, 1, (255, 0, 0))
-      cv2.imshow('ship detection', cv2.resize(image_np, (1300,800)))
+      cv2.imshow('Object Detection', cv2.resize(image_np, (1300,800)))
 
       # Recording Video
       out.write(image_np)
